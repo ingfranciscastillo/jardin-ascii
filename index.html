@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jardín ASCII</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+/* Layout: one column — title, toolbar of seed chips, then the garden grid as the hero. */
+:root {
+  --bg: #EDF1EA; --panel: #F8FAF5; --ink: #1C2A24; --muted: #5C6D64; --line: #CBD6CD; --accent: #C2366B;
+  --f-pink: #D2387A; --f-red: #C42F2C; --f-orange: #CF5F16; --f-yellow: #B08300; --f-lilac: #7548CC; --f-blue: #2C68CF;
+  --f-center: #7A4A12; --f-core: #2E1D12; --stem: #3B7A37; --leaf: #5C9A36; --grass: #4B8A3A; --grass2: #7CA43B; --soil: #8A6B4B; --pollen: #B08300;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E171B; --panel: #111D22; --ink: #E3ECE6; --muted: #8DA29A; --line: #263A3C; --accent: #F06C9B;
+  --f-pink: #FF7AAE; --f-red: #FF6B5E; --f-orange: #FF9F4A; --f-yellow: #FFD447; --f-lilac: #B89DFF; --f-blue: #7FB3FF;
+  --f-center: #E0A35A; --f-core: #F5E6C8; --stem: #66C062; --leaf: #A0DD68; --grass: #4FAE55; --grass2: #8BCB62; --soil: #6F5E4B; --pollen: #FFE79A;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0E171B; --panel: #111D22; --ink: #E3ECE6; --muted: #8DA29A; --line: #263A3C; --accent: #F06C9B;
+  --f-pink: #FF7AAE; --f-red: #FF6B5E; --f-orange: #FF9F4A; --f-yellow: #FFD447; --f-lilac: #B89DFF; --f-blue: #7FB3FF;
+  --f-center: #E0A35A; --f-core: #F5E6C8; --stem: #66C062; --leaf: #A0DD68; --grass: #4FAE55; --grass2: #8BCB62; --soil: #6F5E4B; --pollen: #FFE79A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--mono); font-size: 14px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 28px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 24px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 6vw, 60px); line-height: .95; margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+h1 span { color: var(--accent); }
+.lede { margin: 0; color: var(--muted); max-width: 46ch; line-height: 1.5; font-size: 13px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.seeds { display: flex; flex-wrap: wrap; gap: 6px; }
+.label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-right: 4px; align-self: center; }
+button { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; line-height: 1.1; }
+button:hover { border-color: var(--muted); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seed[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.seed .mini { font-weight: 600; white-space: pre; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.actions .primary { background: var(--accent); border-color: var(--accent); color: var(--panel); font-weight: 600; }
+#wind[aria-pressed="true"] { border-color: var(--grass); box-shadow: inset 0 0 0 1px var(--grass); }
+.garden-box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 0 0; overflow: hidden; }
+#garden { margin: 0; font-family: var(--mono); font-size: clamp(10px, 1.45vw, 16px); line-height: 1.12; white-space: pre; cursor: crosshair; user-select: none; -webkit-user-select: none; touch-action: none; padding: 0 12px; color: var(--ink); }
+#measure { position: absolute; visibility: hidden; white-space: pre; font-family: var(--mono); font-size: clamp(10px, 1.45vw, 16px); }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; color: var(--muted); font-size: 12px; }
+.foot b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+#fallback { width: 100%; min-height: 160px; font-family: var(--mono); font-size: 11px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 6px; font-size: 13px; }
+.k-pink{color:var(--f-pink)} .k-red{color:var(--f-red)} .k-orange{color:var(--f-orange)} .k-yellow{color:var(--f-yellow)}
+.k-lilac{color:var(--f-lilac)} .k-blue{color:var(--f-blue)} .k-center{color:var(--f-center)} .k-core{color:var(--f-core)}
+.k-stem{color:var(--stem)} .k-leaf{color:var(--leaf)} .k-grass{color:var(--grass)} .k-grass2{color:var(--grass2)} .k-soil{color:var(--soil)} .k-pollen{color:var(--pollen)}
+@media (max-width: 560px) { .toolbar { flex-direction: column; align-items: stretch; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Jardín <span>ASCII</span></h1>
+    <p class="lede">Elige una semilla y toca la tierra para plantarla. Arrastra para sembrar una fila entera. Cada flor crece con caracteres de texto.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="seeds" id="seeds" role="group" aria-label="Tipo de flor"><span class="label">Semilla</span></div>
+    <div class="actions">
+      <button id="wind" aria-pressed="true" title="Activar o detener el viento">~ Viento</button>
+      <button id="random">Jardín al azar</button>
+      <button id="clear">Limpiar</button>
+      <button id="copy" class="primary">Copiar texto</button>
+    </div>
+  </div>
+
+  <div class="garden-box">
+    <pre id="garden" aria-label="Jardín de flores hecho con caracteres ASCII"></pre>
+  </div>
+  <span id="measure">MMMMMMMMMM</span>
+
+  <div class="foot">
+    <span><b id="count">0</b> flores plantadas</span>
+    <span>«Copiar texto» guarda el jardín como texto plano para pegarlo donde quieras.</span>
+  </div>
+  <textarea id="fallback" hidden readonly aria-label="Texto del jardín"></textarea>
+</div>
+
+<script>
+const TYPES = {
+  margarita: { name: 'Margarita', head: [" _(_)_ ", "(_)@(_)", "  (_)  "], mask: [" ppppp ", "pppcppp", "  ppp  "], colors: ['pink', 'lilac', 'yellow', 'blue'], center: 'center', h: [5, 11], mini: '@' },
+  tulipan:   { name: 'Tulipán',   head: [" _ _ ", "( V )", " \\_/ "], mask: [" p p ", "ppppp", " ppp "], colors: ['red', 'pink', 'orange', 'yellow', 'lilac'], center: 'center', h: [5, 12], mini: 'V' },
+  rosa:      { name: 'Rosa',      head: [" .@. ", "@@&@@", " '@' "], mask: [" ppp ", "ppcpp", " ppp "], colors: ['red', 'pink'], center: 'core', h: [6, 13], mini: '&' },
+  girasol:   { name: 'Girasol',   head: ["  \\|/  ", "-=(#)=-", "  /|\\  "], mask: ["  ppp  ", "pppcppp", "  ppp  "], colors: ['yellow', 'orange'], center: 'center', h: [9, 16], mini: '#' },
+  amapola:   { name: 'Amapola',   head: [" .-. ", "( * )", " '-' "], mask: [" ppp ", "ppcpp", " ppp "], colors: ['red', 'orange', 'lilac'], center: 'core', h: [4, 10], mini: '*' },
+  silvestre: { name: 'Silvestre', head: null, colors: ['pink', 'yellow', 'lilac', 'blue', 'orange', 'red'], center: 'center', h: [1, 4], mini: 'o' },
+};
+const WILD = ['*', 'o', '@', '%', '+', 'x'];
+const ROWS = 28, GROUND = 2;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const pre = document.getElementById('garden');
+const measure = document.getElementById('measure');
+let cols = 80, charW = 9.6, seed = 'aleatoria', wind = !reduce;
+let flowers = [], pollen = [], grassRow = [], soilRow = [];
+
+const rnd = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(rnd(a, b + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+// seed chips
+const seedsEl = document.getElementById('seeds');
+[['aleatoria', 'Al azar', '?'], ...Object.entries(TYPES).map(([k, t]) => [k, t.name, t.mini])].forEach(([k, name, mini]) => {
+  const b = document.createElement('button');
+  b.className = 'seed'; b.id = 'seed-' + k; b.dataset.k = k;
+  b.setAttribute('aria-pressed', k === seed);
+  b.innerHTML = `<span class="mini">${mini}</span>${name}`;
+  b.onclick = () => { seed = k; seedsEl.querySelectorAll('.seed').forEach(s => s.setAttribute('aria-pressed', s.dataset.k === k)); };
+  seedsEl.appendChild(b);
+});
+
+function makeFlower(x, type, born) {
+  type = type === 'aleatoria' ? pick(Object.keys(TYPES)) : type;
+  const t = TYPES[type];
+  const headH = t.head ? t.head.length : 1;
+  const maxH = ROWS - GROUND - headH - 2;
+  const height = Math.min(maxH, ri(t.h[0], t.h[1]));
+  const leaves = [];
+  let last = -5;
+  for (let i = 1; i < height - 1; i++) {
+    if (i - last > 1 && Math.random() < 0.38) { leaves.push({ i, side: Math.random() < 0.5 ? -1 : 1 }); last = i; }
+  }
+  return { x, type, height, leaves, color: pick(t.colors), wild: pick(WILD), born, dur: rnd(1400, 2800), phase: rnd(0, Math.PI * 2), speed: rnd(0.0016, 0.0026) };
+}
+
+function regenGround() {
+  grassRow = Array.from({ length: cols }, () => [pick(['"', ',', "'", 'v', 'w', '`', '.', 'V', ',']), Math.random() < 0.5 ? 'grass' : 'grass2']);
+  soilRow = Array.from({ length: cols }, () => [pick(['~', '-', '.', '_', '~', '=']), 'soil']);
+}
+
+function randomGarden() {
+  flowers = [];
+  const now = performance.now();
+  let x = ri(2, 5);
+  while (x < cols - 3) {
+    flowers.push(makeFlower(x, 'aleatoria', now + rnd(0, 1800)));
+    x += ri(4, 9);
+  }
+  // a few small wildflowers in the gaps
+  for (let i = 0; i < Math.floor(cols / 12); i++) flowers.unshift(makeFlower(ri(1, cols - 2), 'silvestre', now + rnd(0, 2400)));
+  updateCount();
+}
+
+function measureChar() {
+  const w = measure.getBoundingClientRect().width / 10;
+  if (w > 0) charW = w;
+  const avail = pre.clientWidth - 24;
+  const n = Math.max(20, Math.floor(avail / charW));
+  if (n !== cols) { cols = n; regenGround(); }
+}
+
+function updateCount() { document.getElementById('count').textContent = flowers.length; }
+
+function render(now) {
+  const ch = Array.from({ length: ROWS }, () => new Array(cols).fill(' '));
+  const kl = Array.from({ length: ROWS }, () => new Array(cols).fill(''));
+  const put = (y, x, c, k) => { if (y >= 0 && y < ROWS && x >= 0 && x < cols && c !== ' ') { ch[y][x] = c; kl[y][x] = k; } };
+  const yb = ROWS - GROUND - 1;
+
+  for (const f of flowers) {
+    const g = (now - f.born) / f.dur;
+    if (g < 0) continue;
+    const t = TYPES[f.type];
+    if (g < 0.1) { put(yb, f.x, '.', 'leaf'); continue; }
+    if (g < 0.2) { put(yb, f.x, ',', 'leaf'); continue; }
+    const len = Math.max(1, Math.ceil(f.height * Math.min(1, (g - 0.2) / 0.5)));
+    const sway = wind && f.height > 2 ? Math.round(Math.sin(now * f.speed + f.phase) * 0.85) : 0;
+    const yt = yb - len + 1;
+    for (let i = 0; i < len; i++) {
+      const y = yb - i;
+      if (i === len - 1 && sway !== 0 && g >= 0.7) put(y, f.x, sway > 0 ? '/' : '\\', 'stem');
+      else put(y, f.x, '|', 'stem');
+    }
+    for (const lf of f.leaves) if (lf.i < len - 1) put(yb - lf.i, f.x + lf.side, lf.side < 0 ? '\\' : '/', 'leaf');
+    if (g < 0.7) continue;
+    const cx = f.x + sway;
+    if (g < 0.86 || !t.head) {
+      put(yt - 1, cx, t.head ? 'o' : f.wild, f.color);
+      continue;
+    }
+    const hh = t.head.length, hw = t.head[0].length, x0 = cx - Math.floor(hw / 2);
+    for (let r = 0; r < hh; r++) for (let c = 0; c < hw; c++) {
+      const m = t.mask[r][c];
+      if (m === ' ') continue;
+      put(yt - hh + r, x0 + c, t.head[r][c], m === 'c' ? t.center : f.color);
+    }
+  }
+
+  // drifting pollen
+  if (wind && !reduce) {
+    if (pollen.length < 14 && flowers.length && Math.random() < 0.08) {
+      const f = pick(flowers);
+      pollen.push({ x: f.x, y: yb - f.height - 1, vx: rnd(0.15, 0.4), vy: rnd(-0.06, 0.02), c: pick(['.', "'", '`', '·'.replace('·', '.')]) });
+    }
+    pollen = pollen.filter(p => { p.x += p.vx; p.y += p.vy; return p.x < cols && p.y > 0; });
+    for (const p of pollen) { const x = Math.round(p.x), y = Math.round(p.y); if (ch[y] && ch[y][x] === ' ') put(y, x, p.c, 'pollen'); }
+  } else pollen = [];
+
+  for (let x = 0; x < cols; x++) {
+    put(ROWS - 2, x, grassRow[x][0], grassRow[x][1]);
+    put(ROWS - 1, x, soilRow[x][0], soilRow[x][1]);
+  }
+
+  const esc = c => c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '&' ? '&amp;' : c;
+  let html = '';
+  for (let y = 0; y < ROWS; y++) {
+    let run = '', cur = null;
+    const flush = () => { if (run) html += cur ? `<span class="k-${cur}">${run}</span>` : run; run = ''; };
+    for (let x = 0; x < cols; x++) {
+      const k = kl[y][x] || null;
+      if (k !== cur) { flush(); cur = k; }
+      run += esc(ch[y][x]);
+    }
+    flush();
+    html += y < ROWS - 1 ? '\n' : '';
+  }
+  pre.innerHTML = html;
+  return ch;
+}
+
+let lastFrame = 0;
+function loop(now) {
+  if (now - lastFrame > 70) { render(now); lastFrame = now; }
+  requestAnimationFrame(loop);
+}
+
+// planting
+let dragging = false, lastCol = -10;
+function colAt(e) {
+  const r = pre.getBoundingClientRect();
+  return Math.floor((e.clientX - r.left - 12) / charW);
+}
+function plantAt(x) {
+  if (x < 1 || x >= cols - 1) return;
+  flowers.push(makeFlower(x, seed, performance.now()));
+  lastCol = x; updateCount();
+}
+pre.addEventListener('pointerdown', e => { dragging = true; pre.setPointerCapture(e.pointerId); plantAt(colAt(e)); });
+pre.addEventListener('pointermove', e => { if (!dragging) return; const x = colAt(e); if (Math.abs(x - lastCol) >= 4) plantAt(x); });
+['pointerup', 'pointercancel'].forEach(ev => pre.addEventListener(ev, () => { dragging = false; lastCol = -10; }));
+
+document.getElementById('random').onclick = randomGarden;
+document.getElementById('clear').onclick = () => { flowers = []; pollen = []; updateCount(); };
+const windBtn = document.getElementById('wind');
+windBtn.setAttribute('aria-pressed', wind);
+windBtn.onclick = () => { wind = !wind; windBtn.setAttribute('aria-pressed', wind); };
+
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 1800);
+}
+document.getElementById('copy').onclick = () => {
+  const ch = render(performance.now());
+  const text = ch.map(r => r.join('').replace(/\s+$/, '')).join('\n').replace(/^\n+/, '');
+  const fb = document.getElementById('fallback');
+  const showFallback = () => { fb.value = text; fb.hidden = false; fb.focus(); fb.select(); toast('Selecciona el texto de abajo y cópialo'); };
+  try {
+    navigator.clipboard.writeText(text).then(() => { fb.hidden = true; toast('Jardín copiado'); }, showFallback);
+  } catch (e) { showFallback(); }
+};
+
+// keep the garden across live updates
+window.claude?.hot?.snapshot?.(() => ({ flowers, seed, wind }));
+
+function start(data) {
+  measureChar(); regenGround();
+  if (data && Array.isArray(data.flowers) && data.flowers.length) {
+    const now = performance.now();
+    flowers = data.flowers.map(f => ({ ...f, born: now - f.dur }));
+    if (data.seed) document.getElementById('seed-' + data.seed)?.click();
+    if (typeof data.wind === 'boolean') { wind = data.wind; windBtn.setAttribute('aria-pressed', wind); }
+    updateCount();
+  } else randomGarden();
+  requestAnimationFrame(loop);
+}
+new ResizeObserver(() => measureChar()).observe(pre);
+(document.fonts?.ready || Promise.resolve()).then(measureChar);
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+</body>
+</html>
